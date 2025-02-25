@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ITunnel, ITunnelOptions, IWorkbench, IWorkbenchConstructionOptions, Menu } from './web.api.js';
+import { ColorScheme, ITunnel, ITunnelOptions, IWorkbench, IWorkbenchConstructionOptions, Menu } from './web.api.js';
 import { BrowserMain } from './web.main.js';
 import { URI } from '../../base/common/uri.js';
 import { IDisposable, toDisposable } from '../../base/common/lifecycle.js';
@@ -59,7 +59,32 @@ export function create(domElement: HTMLElement, options: IWorkbenchConstructionO
 
 	// Startup workbench and resolve waiters
 	let instantiatedWorkbench: IWorkbench | undefined = undefined;
-	new BrowserMain(domElement, options).open().then(workbench => {
+	new BrowserMain(domElement, {
+		...options,
+		// defaultLayout: {
+		// 	layout: {
+		// 		editors: {
+		// 			groups: [],
+		// 			orientation: GroupOrientation.HORIZONTAL,
+		// 		}
+		// 	},
+		// 	editors: [],
+		// 	force: true
+		// },
+		initialColorTheme: {
+			themeType: ColorScheme.DARK
+		},
+		settingsSyncOptions: {
+			enabled: false
+		}
+	}).open().then(workbench => {
+		// init(workbench, options);
+		(globalThis as any)._workbench = workbench;
+		console.log('25/02/2025');
+
+		globalThis.dispatchEvent(new Event('vscode:load'));
+		workbench.env.retrievePerformanceMarks().then(() => globalThis.dispatchEvent(new Event('vscode:ready')));
+
 		instantiatedWorkbench = workbench;
 		workbenchPromise.complete(workbench);
 	});
