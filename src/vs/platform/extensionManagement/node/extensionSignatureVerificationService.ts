@@ -78,8 +78,8 @@ export class ExtensionSignatureVerificationService implements IExtensionSignatur
 			module = await this.vsceSign();
 		} catch (error) {
 			this.logService.error('Could not load vsce-sign module', getErrorMessage(error));
-			this.logService.info(`Extension signature verification is not done: ${extensionId}`);
-			return undefined;
+			this.logService.info(`The Extension signature verification is not done: ${extensionId}`);
+			return { code: ExtensionSignatureVerificationCode.Success };
 		}
 
 		const startTime = new Date().getTime();

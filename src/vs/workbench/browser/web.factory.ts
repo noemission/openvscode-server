@@ -72,7 +72,7 @@ export function create(domElement: HTMLElement, options: IWorkbenchConstructionO
 		// 	force: true
 		// },
 		initialColorTheme: {
-			themeType: ColorScheme.DARK
+			themeType: ColorScheme.DARK,
 		},
 		settingsSyncOptions: {
 			enabled: false
@@ -80,7 +80,7 @@ export function create(domElement: HTMLElement, options: IWorkbenchConstructionO
 	}).open().then(workbench => {
 		// init(workbench, options);
 		(globalThis as any)._workbench = workbench;
-		console.log('25/02/2025');
+		console.log('26/02/2025');
 
 		globalThis.dispatchEvent(new Event('vscode:load'));
 		workbench.env.retrievePerformanceMarks().then(() => globalThis.dispatchEvent(new Event('vscode:ready')));

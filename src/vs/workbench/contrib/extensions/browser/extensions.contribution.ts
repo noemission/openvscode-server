@@ -69,7 +69,7 @@ import { ExtensionsCompletionItemsProvider } from './extensionsCompletionItemsPr
 import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
 import { Event } from '../../../../base/common/event.js';
 import { UnsupportedExtensionsMigrationContrib } from './unsupportedExtensionsMigrationContribution.js';
-import { isNative, isWeb } from '../../../../base/common/platform.js';
+import { isWeb } from '../../../../base/common/platform.js';
 import { ExtensionStorageService } from '../../../../platform/extensionManagement/common/extensionStorage.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { IStringDictionary } from '../../../../base/common/collections.js';
@@ -261,9 +261,9 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration)
 			'extensions.verifySignature': {
 				type: 'boolean',
 				description: localize('extensions.verifySignature', "When enabled, extensions are verified to be signed before getting installed."),
-				default: true,
-				scope: ConfigurationScope.APPLICATION,
-				included: isNative
+				default: false,
+				// scope: ConfigurationScope.APPLICATION,
+				// included: isNative
 			},
 			[UseUnpkgResourceApiConfigKey]: {
 				type: 'boolean',

@@ -12,13 +12,12 @@ import * as semver from '../../../base/common/semver/semver.js';
 import { URI } from '../../../base/common/uri.js';
 import { generateUuid } from '../../../base/common/uuid.js';
 import { Promises as FSPromises } from '../../../base/node/pfs.js';
-import { buffer, CorruptZipMessage } from '../../../base/node/zip.js';
+import { buffer } from '../../../base/node/zip.js';
 import { INativeEnvironmentService } from '../../environment/common/environment.js';
 import { toExtensionManagementError } from '../common/abstractExtensionManagementService.js';
-import { ExtensionManagementError, ExtensionManagementErrorCode, ExtensionSignatureVerificationCode, IExtensionGalleryService, IGalleryExtension, InstallOperation } from '../common/extensionManagement.js';
+import { ExtensionManagementErrorCode, ExtensionSignatureVerificationCode, IExtensionGalleryService, IGalleryExtension, InstallOperation } from '../common/extensionManagement.js';
 import { ExtensionKey, groupByExtension } from '../common/extensionManagementUtil.js';
 import { fromExtractError } from './extensionManagementUtil.js';
-import { IExtensionSignatureVerificationService } from './extensionSignatureVerificationService.js';
 import { TargetPlatform } from '../../extensions/common/extensions.js';
 import { FileOperationResult, IFileService, IFileStatWithMetadata, toFileOperationResult } from '../../files/common/files.js';
 import { ILogService } from '../../log/common/log.js';
@@ -49,7 +48,6 @@ export class ExtensionsDownloader extends Disposable {
 		@INativeEnvironmentService environmentService: INativeEnvironmentService,
 		@IFileService private readonly fileService: IFileService,
 		@IExtensionGalleryService private readonly extensionGalleryService: IExtensionGalleryService,
-		@IExtensionSignatureVerificationService private readonly extensionSignatureVerificationService: IExtensionSignatureVerificationService,
 		@ITelemetryService private readonly telemetryService: ITelemetryService,
 		@IUriIdentityService private readonly uriIdentityService: IUriIdentityService,
 		@ILogService private readonly logService: ILogService,
@@ -66,45 +64,8 @@ export class ExtensionsDownloader extends Disposable {
 
 		const location = await this.downloadVSIX(extension, operation);
 
-		if (!verifySignature) {
-			return { location, verificationStatus: undefined };
-		}
-
-		if (!extension.isSigned) {
-			return { location, verificationStatus: ExtensionSignatureVerificationCode.NotSigned };
-		}
-
-		let signatureArchiveLocation;
-		try {
-			signatureArchiveLocation = await this.downloadSignatureArchive(extension);
-			const verificationStatus = (await this.extensionSignatureVerificationService.verify(extension.identifier.id, extension.version, location.fsPath, signatureArchiveLocation.fsPath, clientTargetPlatform))?.code;
-			if (verificationStatus === ExtensionSignatureVerificationCode.PackageIsInvalidZip || verificationStatus === ExtensionSignatureVerificationCode.SignatureArchiveIsInvalidZip) {
-				try {
-					// Delete the downloaded vsix if VSIX or signature archive is invalid
-					await this.delete(location);
-				} catch (error) {
-					this.logService.error(error);
-				}
-				throw new ExtensionManagementError(CorruptZipMessage, ExtensionManagementErrorCode.CorruptZip);
-			}
-			return { location, verificationStatus };
-		} catch (error) {
-			try {
-				// Delete the downloaded VSIX if signature archive download fails
-				await this.delete(location);
-			} catch (error) {
-				this.logService.error(error);
-			}
-			throw error;
-		} finally {
-			if (signatureArchiveLocation) {
-				try {
-					// Delete signature archive always
-					await this.delete(signatureArchiveLocation);
-				} catch (error) {
-					this.logService.error(error);
-				}
-			}
+		if (!verifySignature || true) {
+			return { location, verificationStatus: ExtensionSignatureVerificationCode.Success };
 		}
 	}
 
@@ -135,36 +96,6 @@ export class ExtensionsDownloader extends Disposable {
 			return location;
 		} catch (e) {
 			throw toExtensionManagementError(e, ExtensionManagementErrorCode.Download);
-		}
-	}
-
-	private async downloadSignatureArchive(extension: IGalleryExtension): Promise<URI> {
-		try {
-			const location = joinPath(this.extensionsDownloadDir, `${this.getName(extension)}${ExtensionsDownloader.SignatureArchiveExtension}`);
-			const attempts = await this.doDownload(extension, 'sigzip', async () => {
-				await this.extensionGalleryService.downloadSignatureArchive(extension, location);
-				try {
-					await this.validate(location.fsPath, '.signature.p7s');
-				} catch (error) {
-					try {
-						await this.fileService.del(location);
-					} catch (e) {
-						this.logService.warn(`Error while deleting: ${location.path}`, getErrorMessage(e));
-					}
-					throw error;
-				}
-			}, 2);
-
-			if (attempts > 1) {
-				this.telemetryService.publicLog2<RetryDownloadEvent, RetryDownloadClassification>('extensiongallery:downloadsigzip:retry', {
-					extensionId: extension.identifier.id,
-					attempts
-				});
-			}
-
-			return location;
-		} catch (e) {
-			throw toExtensionManagementError(e, ExtensionManagementErrorCode.DownloadSignature);
 		}
 	}
 

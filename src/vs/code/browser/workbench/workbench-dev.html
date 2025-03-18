@@ -33,6 +33,13 @@
 	</head>
 
 	<body aria-label="">
+		<div class="main-container">
+			<div id="main"></div>
+			<div id="resize-container"></div>
+			<div id="iframe-preview-container">
+				<iframe id="iframe-preview" sandbox="allow-scripts allow-same-origin" src="http://localhost:3000" frameborder="0"></iframe>
+			</div>
+		</div>
 	</body>
 
 	<!-- Startup (do not modify order of script tags!) -->
@@ -64,4 +71,65 @@
 		performance.mark('code/willLoadWorkbenchMain');
 	</script>
 	<script type="module" src="{{WORKBENCH_WEB_BASE_URL}}/out/vs/code/browser/workbench/workbench.js"></script>
+	<script>
+		/* eslint-disable header/header */
+		const el = document.getElementById('resize-container');
+		const main = document.getElementById('main');
+		const previewEl = document.getElementById('iframe-preview');
+		function startDrag(e) {
+			previewEl.style.pointerEvents = 'none';
+			main.style.pointerEvents = 'none';
+			window.addEventListener('mousemove', doDrag, false);
+			window.addEventListener('mouseup', stopDrag, false);
+		}
+		function doDrag(e) {
+			main.style.width = e.clientX - 5 + 'px';
+			window.dispatchEvent(new Event('resize'));
+		}
+		function stopDrag(e) {
+			el.addEventListener('mousedown', startDrag, false);
+			window.removeEventListener('mousemove', doDrag, false);
+			window.removeEventListener('mouseup', stopDrag, false);
+			previewEl.style.pointerEvents = 'auto';
+			main.style.pointerEvents = 'auto';
+		}
+		stopDrag();
+
+	</script>
+	<style>
+		html, body{
+			height: 100%;
+		}
+		.main-container {
+			display: flex;
+			height: 100%;
+		}
+
+		#main {
+			width: 60%;
+		}
+
+		#resize-container {
+			width: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 1;
+		}
+
+		#resize-container:hover {
+			background-color: #3f51b5;
+		}
+
+		#iframe-preview {
+			width: 100%;
+			height: 100%;
+			display: none;
+			flex: 1;
+		}
+
+		#iframe-preview-container {
+			flex: 1;
+		}
+	</style>
 </html>
