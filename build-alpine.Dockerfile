@@ -1,4 +1,5 @@
-FROM node:22 AS build
+ARG VARIANT=22
+FROM node:22-alpine AS build
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -9,8 +10,7 @@ RUN echo "export PATH=${PATH}" >> /home/${USERNAME}/.bashrc
 
 COPY --chown=${USERNAME}:${USERNAME} . /home/node/openvscode
 
-RUN apt-get update && apt-get install -y g++ gcc make pkg-config libx11-dev libxkbfile-dev libsecret-1-dev
-# RUN apk --no-cache add build-base libsecret-dev krb5-dev python3 wget libx11-dev libxkbfile-dev git
+RUN apk --no-cache add build-base libsecret-dev krb5-dev python3 wget libx11-dev libxkbfile-dev git
 
 USER node
 WORKDIR /home/node/openvscode

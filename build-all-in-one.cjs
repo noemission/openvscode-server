@@ -14,6 +14,7 @@ function linux() {
 		'docker',
 		[
 			'build',
+			'--no-cache',
 			'-f', 'build.Dockerfile',
 			'--platform=linux/arm64',
 			`--output=${OUT_DIR}`,
