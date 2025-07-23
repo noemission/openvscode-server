@@ -14,10 +14,9 @@ RUN apt-get update && apt-get install -y g++ gcc make pkg-config libx11-dev libx
 
 USER node
 WORKDIR /home/node/openvscode
-CMD ["sleep", "infinity"]
-# RUN ./build-me.sh $TARGETOS $TARGETARCH
+RUN ./build-me.sh $TARGETOS $TARGETARCH
 
 
-# FROM scratch
-# COPY --from=build /home/node/output /
-# ENTRYPOINT ["/"]
+FROM scratch
+COPY --from=build /home/node/output /
+ENTRYPOINT ["/"]
