@@ -1,5 +1,6 @@
 #! /bin/bash
 
+rm -rf final-binaries
 docker build --no-cache -f build.Dockerfile \
 	--platform=linux/amd64 \
 	--output=final-binaries \
