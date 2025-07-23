@@ -1,6 +1,6 @@
 #! /bin/bash
 
-npm version patch
+npm version prerelease
 TAG=$(git describe --tags --abbrev=0)
 git push --follow-tags
 echo "Releasing $TAG"
