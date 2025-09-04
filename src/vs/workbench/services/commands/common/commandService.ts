@@ -52,6 +52,11 @@ export class CommandService extends Disposable implements ICommandService {
 		const activationEvent = `onCommand:${id}`;
 		const commandIsRegistered = !!CommandsRegistry.getCommand(id);
 
+		if (['workbench.action.toggleFullScreen', 'workbench.action.toggleZenMode'].includes(id)) {
+			console.warn(`command "${id}" disabled`);
+			return Promise.reject();
+		}
+
 		if (commandIsRegistered) {
 
 			// if the activation event has already resolved (i.e. subsequent call),

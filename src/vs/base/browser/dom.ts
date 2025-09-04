@@ -1607,35 +1607,34 @@ export interface IDetectedFullscreen {
 
 export function detectFullscreen(targetWindow: Window): IDetectedFullscreen | null {
 
-	// Browser fullscreen: use DOM APIs to detect
-	if (targetWindow.document.fullscreenElement || (<any>targetWindow.document).webkitFullscreenElement || (<any>targetWindow.document).webkitIsFullScreen) {
-		return { mode: DetectedFullscreenMode.DOCUMENT, guess: false };
-	}
+	// // Browser fullscreen: use DOM APIs to detect
+	// if (targetWindow.document.fullscreenElement || (<any>targetWindow.document).webkitFullscreenElement || (<any>targetWindow.document).webkitIsFullScreen) {
+	// 	return { mode: DetectedFullscreenMode.DOCUMENT, guess: false };
+	// }
 
-	// There is no standard way to figure out if the browser
-	// is using native fullscreen. Via checking on screen
-	// height and comparing that to window height, we can guess
-	// it though.
+	// // There is no standard way to figure out if the browser
+	// // is using native fullscreen. Via checking on screen
+	// // height and comparing that to window height, we can guess
+	// // it though.
 
-	if (targetWindow.innerHeight === targetWindow.screen.height) {
-		// if the height of the window matches the screen height, we can
-		// safely assume that the browser is fullscreen because no browser
-		// chrome is taking height away (e.g. like toolbars).
-		return { mode: DetectedFullscreenMode.BROWSER, guess: false };
-	}
+	// if (targetWindow.innerHeight === targetWindow.screen.height) {
+	// 	// if the height of the window matches the screen height, we can
+	// 	// safely assume that the browser is fullscreen because no browser
+	// 	// chrome is taking height away (e.g. like toolbars).
+	// 	return { mode: DetectedFullscreenMode.BROWSER, guess: false };
+	// }
 
-	if (platform.isMacintosh || platform.isLinux) {
-		// macOS and Linux do not properly report `innerHeight`, only Windows does
-		if (targetWindow.outerHeight === targetWindow.screen.height && targetWindow.outerWidth === targetWindow.screen.width) {
-			// if the height of the browser matches the screen height, we can
-			// only guess that we are in fullscreen. It is also possible that
-			// the user has turned off taskbars in the OS and the browser is
-			// simply able to span the entire size of the screen.
-			return { mode: DetectedFullscreenMode.BROWSER, guess: true };
-		}
-	}
-
-	// Not in fullscreen
+	// if (platform.isMacintosh || platform.isLinux) {
+	// 	// macOS and Linux do not properly report `innerHeight`, only Windows does
+	// 	if (targetWindow.outerHeight === targetWindow.screen.height && targetWindow.outerWidth === targetWindow.screen.width) {
+	// 		// if the height of the browser matches the screen height, we can
+	// 		// only guess that we are in fullscreen. It is also possible that
+	// 		// the user has turned off taskbars in the OS and the browser is
+	// 		// simply able to span the entire size of the screen.
+	// 		return { mode: DetectedFullscreenMode.BROWSER, guess: true };
+	// 	}
+	// }
+	// Not in fullscreen;
 	return null;
 }
 
