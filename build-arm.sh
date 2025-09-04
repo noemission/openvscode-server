@@ -1,8 +1,8 @@
 #! /bin/bash
 
 docker build --no-cache -f build.Dockerfile \
-	--platform=linux/amd64 \
+	--platform=linux/arm64 \
 	--output=final-binaries \
 	--progress plain \
 	--build-arg TARGETOS=linux \
-	--build-arg TARGETARCH=x64 .
+	--build-arg TARGETARCH=arm64 .
